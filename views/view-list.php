@@ -492,6 +492,14 @@ class TablePress_All_Tables_List_Table extends WP_List_Table {
 	}
 
 	/**
+	 * Render a cell in the "is_product_table" column
+	 */
+
+	 protected function column_table_is_product_table( array $item ) {
+		 return TablePress::get_user_display_name( $item['options']['is_product_table'] );
+	 }
+
+	/**
 	 * Render a cell in the "table_last_modified" column.
 	 *
 	 * @since 1.0.0

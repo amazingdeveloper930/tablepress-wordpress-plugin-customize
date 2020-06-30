@@ -227,6 +227,10 @@ class TablePress_Edit_View extends TablePress_View {
 		<td class="column-2"><textarea name="table[description]" id="table-description" class="large-text" rows="4"><?php echo esc_textarea( $data['table']['description'] ); ?></textarea></td>
 	</tr>
 	<tr class="top-border">
+	<th class="column-1 top-align" scope="row"><label for="table-description"><?php _e( 'Is Product Table', 'tablepress' ); ?>:</label></th>
+		<td class="column-2"><input type="checkbox" id="table_isproduct" name="table[options][is_product_table]" value="true"<?php checked(  $data['table']['options']['is_product_table'] ); ?> /></td>
+	</tr>
+	<tr class="bottom-border">
 		<th class="column-1" scope="row"><?php _e( 'Last Modified', 'tablepress' ); ?>:</th>
 		<td class="column-2"><?php printf( __( '%1$s by %2$s', 'tablepress' ), '<span id="last-modified">' . TablePress::format_datetime( $data['table']['last_modified'] ) . '</span>', '<span id="last-editor">' . TablePress::get_user_display_name( $data['table']['options']['last_editor'] ) . '</span>' ); ?></td>
 	</tr>
@@ -247,8 +251,13 @@ class TablePress_Edit_View extends TablePress_View {
 		$table = $data['table']['data'];
 		$options = $data['table']['options'];
 		$visibility = $data['table']['visibility'];
+		$detailed_data = [];
+		if(isset($data['table']['options']['detailed_data']))
+			$detailed_data = (array) json_decode( $data['table']['options']['detailed_data'], true );
 		$rows = count( $table );
 		$columns = count( $table[0] );
+
+		$is_product_table = isset($options['is_product_table']) ? $options['is_product_table'] : false;
 
 		$head_row_idx = $foot_row_idx = -1;
 		// Determine row index of the table head row, by excluding all hidden rows from the beginning.
@@ -284,6 +293,15 @@ class TablePress_Edit_View extends TablePress_View {
 		$column = TablePress::number_to_letter( $col_idx + 1 );
 		echo "\t\t\t<th scope=\"col\" class=\"head{$column_class}\"><span class=\"sort-control sort-desc hide-if-no-js\" title=\"" . esc_attr__( 'Sort descending', 'tablepress' ) . '"><span class="sorting-indicator"></span></span><span class="sort-control sort-asc hide-if-no-js" title="' . esc_attr__( 'Sort ascending', 'tablepress' ) . "\"><span class=\"sorting-indicator\"></span></span><span class=\"move-handle\">{$column}</span></th>\n";
 	}
+
+	if($is_product_table)
+	{
+		
+?>
+		<th scope="col"><span><?php esc_html_e( 'Is Actived', 'tablepress' ); ?></span></th>
+		<th scope="col"><span><?php esc_html_e( 'Action', 'tablepress' ); ?></span></th>
+<?php
+	}
 ?>
 			<th scope="col"><span class="screen-reader-text"><?php esc_html_e( 'Row Number', 'tablepress' ); ?></span></th>
 		</tr>
@@ -310,6 +328,8 @@ class TablePress_Edit_View extends TablePress_View {
 		echo "\t\t\t<td><span class=\"move-handle\">{$row}</span></td>";
 		echo "<td><label class=\"hide-if-no-js\"><span class=\"screen-reader-text\">{$row_selector_text}</span><input type=\"checkbox\" /><input type=\"hidden\" class=\"visibility\" name=\"table[visibility][rows][]\" value=\"{$visibility['rows'][ $row_idx ]}\" /></label></td>";
 		foreach ( $row_data as $col_idx => $cell ) {
+			if(!is_numeric($col_idx))
+				continue;
 			$column = TablePress::number_to_letter( $col_idx + 1 );
 			$column_class = '';
 			if ( 0 === $visibility['columns'][ $col_idx ] ) {
@@ -318,7 +338,12 @@ class TablePress_Edit_View extends TablePress_View {
 			// Sanitize, so that HTML is possible in table cells.
 			$cell = esc_textarea( $cell );
 			$cell_label = esc_html( sprintf( __( 'Column %1$s, Row %2$s', 'tablepress' ), number_format_i18n( $col_idx + 1 ), number_format_i18n( $row ) ) );
-			echo "<td{$column_class}><label for=\"cell-{$column}{$row}\"><span class=\"screen-reader-text\">{$cell_label}</span></label><textarea name=\"table[data][{$row_idx}][{$col_idx}]\" id=\"cell-{$column}{$row}\" rows=\"1\">{$cell}</textarea></td>";
+			echo "<td{$column_class}><label for=\"cell-{$column}{$row}\"><span class=\"screen-reader-text\">{$cell_label}</span></label><textarea name=\"table[data][{$row_idx}][{$col_idx}]\" id=\"cell-{$column}{$row}\" class=\"table-data\" rows=\"1\">{$cell}</textarea></td>";
+		}
+		if($is_product_table)
+		{
+			echo "<td><label class=\"hide-if-no-js\"><span class=\"screen-reader-text\">{$row_selector_text}</span><input type=\"checkbox\" name=\"table[data][{$row_idx}][is_actived]\" class=\"checkbox_is_actived\" value=\"true\" " . checked( $detailed_data[$row_idx]['is_actived']) . " /></label></td>";
+			echo "<td><a class=\"btn btn-success\" href=\"\">Edit</a></td>\n";
 		}
 		echo "<td><span class=\"move-handle\">{$row}</span></td>\n";
 		echo "\t\t</tr>\n";

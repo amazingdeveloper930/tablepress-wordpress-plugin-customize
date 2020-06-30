@@ -895,11 +895,14 @@ class TablePress_Table_Model extends TablePress_Model {
 				'datatables_info'             => true,
 				'datatables_scrollx'          => false,
 				'datatables_custom_commands'  => '',
+				'is_product_table'			  => false,
+				'detailed_data'				  => array(),
 			),
 			'visibility'    => array(
 				'rows'    => array( 1 ), // one visbile row
 				'columns' => array( 1 ), // one visible column
 			),
+			
 		);
 		/**
 		 * Filter the default template/structure of an empty table.
@@ -1084,19 +1087,7 @@ class TablePress_Table_Model extends TablePress_Model {
 		return (array) json_decode( $options, true );
 	}
 
-	/**
-	 * Save the table visibility of a table (in a post meta field of the table's post).
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param int   $post_id    Post ID.
-	 * @param array $visibility Table visibility.
-	 * @return bool True on success, false on error.
-	 */
-	protected function _add_table_visibility( $post_id, array $visibility ) {
-		$visibility = wp_json_encode( $visibility, TABLEPRESS_JSON_OPTIONS );
-		return $this->model_post->add_meta_field( $post_id, $this->table_visibility_field_name, $visibility );
-	}
+
 
 	/**
 	 * Update the table visibility of a table (in a post meta field in the table's post).
@@ -1127,6 +1118,21 @@ class TablePress_Table_Model extends TablePress_Model {
 		}
 		return json_decode( $visibility, true );
 	}
+
+	/**
+	 * Save the table visibility of a table (in a post meta field of the table's post).
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param int   $post_id    Post ID.
+	 * @param array $visibility Table visibility.
+	 * @return bool True on success, false on error.
+	 */
+	protected function _add_table_visibility( $post_id, array $visibility ) {
+		$visibility = wp_json_encode( $visibility, TABLEPRESS_JSON_OPTIONS );
+		return $this->model_post->add_meta_field( $post_id, $this->table_visibility_field_name, $visibility );
+	}
+
 
 	/**
 	 * Merge existing Table Options with default Table Options,
